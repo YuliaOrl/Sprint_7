@@ -13,6 +13,7 @@ class TestLoginCourier:
 
     @allure.title('Позитивная проверка авторизации курьера')
     @allure.description('Проверяется статус код и возвращение id в теле ответа')
+    @allure.step('Авторизация курьера с корректными данными')
     def test_login_courier_true(self):
         r = requests.post(MAIN_URL + 'courier/login', data=self.payload)
         assert r.status_code == 200 and r.json()['id']
@@ -22,6 +23,7 @@ class TestLoginCourier:
 
     @allure.title('Проверка обязательных полей при авторизации курьера')
     @allure.description('Проверяется возвращение ошибки при отсутствии обязательного поля в запросе')
+    @allure.step('Авторизация курьера с параметрами {body}')
     @pytest.mark.parametrize('body, code, message', payload_data)
     def test_login_courier_without_required_field(self, body, code, message):
         r = requests.post(MAIN_URL + 'courier/login', data=body)
@@ -37,6 +39,7 @@ class TestLoginCourier:
 
     @allure.title('Негативная проверка авторизации курьера')
     @allure.description('Проверяется возвращение ошибки при неверном логине или пароле')
+    @allure.step('Авторизация курьера с неверными параметрами {body}')
     @pytest.mark.parametrize('body', body)
     def test_login_courier_with_incorrect_login_or_password(self, body):
         r = requests.post(MAIN_URL + 'courier/login', data=body)
@@ -44,6 +47,7 @@ class TestLoginCourier:
 
     @allure.title('Негативная проверка авторизации курьера под несуществующим пользователем')
     @allure.description('Проверяется возвращение ошибки при несуществующем логине и пароле')
+    @allure.step('Авторизация курьера с несуществующей парой логин-пароль')
     def test_login_courier_non_existent_user(self):
         payload = {
             "login": "non_existent_user",

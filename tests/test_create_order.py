@@ -10,6 +10,7 @@ class TestCreateOrder:
 
     @allure.title('Проверка создания заказа')
     @allure.description('Проверяется создание заказа с указанием разных вариантов цвета самоката')
+    @allure.step('Создание заказа с выбором цвета самоката {color}')
     @pytest.mark.parametrize('color', color)
     def test_create_order_true(self, color):
         payload = {
