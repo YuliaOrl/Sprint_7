@@ -7,35 +7,26 @@ from helpers import *
 
 class TestCreateCourier:
 
-    @allure.title('Позитивная проверка создания курьера')
+    @allure.title('Позитивная проверка создания курьера с корректными данными')
     @allure.description('Проверяется статус код и тело ответа')
-    @allure.step('Создание курьера с корректными данными')
     def test_create_courier_true(self):
         payload = generate_random_payload()
-        r = requests.post(MAIN_URL + 'courier', data=payload)
-        assert r.status_code == 201 and r.text == '{"ok":true}'
+        r = requests.post(COURIER_URL, data=payload)
+        assert r.status_code == 201 and r.text == CREATE_EXPECTED_MESSAGE_201
 
     @allure.title('Проверка невозможности создания двух одинаковых курьеров')
-    @allure.description('Проверяется возвращение ошибки при создании курьера с существующим логином')
-    @allure.step('Повторное создание курьера c данными')
+    @allure.description('Проверяется возвращение ошибки при создании курьера с существующим логином и паролем')
     def test_create_courier_once(self):
         payload = generate_random_payload()
-        requests.post(MAIN_URL + 'courier', data=payload)
-        r = requests.post(MAIN_URL + 'courier', data=payload)
-        assert r.status_code == 409 and r.json()['message'] == 'Этот логин уже используется. Попробуйте другой.'
-
-    body = [{
-        "password": "test_password",
-        "firstName": "test_name"
-    }, {
-        "login": "test_login_name",
-        "firstName": "test_name"
-    }]
+        requests.post(COURIER_URL, data=payload)
+        r = requests.post(COURIER_URL, data=payload)
+        assert r.status_code == 409 and r.json()['message'] == CREATE_EXPECTED_MESSAGE_409
 
     @allure.title('Проверка обязательных полей при создании курьера')
     @allure.description('Проверяется возвращение ошибки при отсутствии обязательного поля в запросе')
-    @allure.step('Создание курьера с параметрами {body}')
-    @pytest.mark.parametrize('body', body)
-    def test_create_courier_without_required_field(self, body):
-        r = requests.post(MAIN_URL + 'courier', data=body)
-        assert r.status_code == 400 and r.json()['message'] == 'Недостаточно данных для создания учетной записи'
+    @pytest.mark.parametrize('required_field', ["login", "password"])
+    def test_create_courier_without_required_field(self, required_field):
+        payload = generate_random_payload()
+        del payload[required_field]
+        r = requests.post(COURIER_URL, data=payload)
+        assert r.status_code == 400 and r.json()['message'] == CREATE_EXPECTED_MESSAGE_400
